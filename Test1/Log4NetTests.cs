@@ -4,26 +4,22 @@ using Xunit;
 
 namespace Test1
 {
-
-
     public class Log4NetTests : IDisposable
     {
-        private readonly string AuditRepository;
+        private readonly string Repository;
         private readonly log4net.ILog logger;
 
-        public Log4NetTests(Configuration configuration = null)
+        public Log4NetTests(Log4NetConfiguration configuration = null)
         {
-            AuditRepository = LoggerBuilders.BuildLog4Net(configuration);
+            Repository = LoggerBuilders.BuildLog4Net(configuration);
 
-            logger = log4net.LogManager.GetLogger(AuditRepository, typeof(IAuditLogger));
-
+            logger = log4net.LogManager.GetLogger(Repository, typeof(IAuditLogger));
         }
 
         [Fact]
-        public void TestLog4Net()
+        public void TestCase1()
         {
             TestsCases.TestCase1((message, i, data) => logger.Info(new { message, i, data }), (message, elapsedMilliseconds, count) => logger.Info(new { message, elapsedMilliseconds, count }));
-
         }
 
         #region IDisposable Support
@@ -35,7 +31,7 @@ namespace Test1
             {
                 if (disposing)
                 {
-                    log4net.LogManager.ShutdownRepository(AuditRepository);
+                    log4net.LogManager.ShutdownRepository(Repository);
                 }
                 disposedValue = true;
             }

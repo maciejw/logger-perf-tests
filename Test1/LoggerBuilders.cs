@@ -3,36 +3,75 @@ using Serilog;
 
 namespace Test1
 {
-    public class Configuration
+    public class Log4NetConfiguration
+    {
+        public log4net.Appender.FileAppender.LockingModelBase LockingModel { get; set; }
+        public string InstanceName { get; set; }
+
+        public Log4NetConfiguration()
+        {
+            LockingModel = new log4net.Appender.FileAppender.MinimalLock();
+            InstanceName = "Audit";
+        }
+
+        public void Deconstruct(out log4net.Appender.FileAppender.LockingModelBase LockingModel, out string InstanceName)
+        {
+            LockingModel = this.LockingModel;
+            InstanceName = this.InstanceName;
+        }
+    }
+
+    public class SerilogConfiguration
     {
         /// <summary>
         /// Serilog
         /// </summary>
         public bool Buffered { get; set; }
+
         /// <summary>
-        /// Serilog, NLog
+        /// Serilog
         /// </summary>
         public bool Shared { get; set; }
+
+        public SerilogConfiguration()
+        {
+            Buffered = false;
+            Shared = false;
+        }
+
+        public void Deconstruct(out bool Buffered, out bool Shared)
+        {
+            Buffered = this.Buffered;
+            Shared = this.Shared;
+        }
+    }
+
+    public class NLogConfiguration
+    {
+        /// <summary>
+        /// NLog
+        /// </summary>
+        public bool Shared { get; set; }
+
         /// <summary>
         /// NLog
         /// </summary>
         public bool AutoFlush { get; set; }
+
         /// <summary>
         /// NLog
         /// </summary>
         public bool KeepFileOpen { get; set; }
 
-        public Configuration()
+        public NLogConfiguration()
         {
-            Buffered = false;
             Shared = false;
-            AutoFlush = !Buffered;
+            AutoFlush = true;
             KeepFileOpen = false;
         }
 
-        public void Deconstruct(out bool Buffered, out bool Shared, out bool AutoFlush, out bool KeepFileOpen)
+        public void Deconstruct(out bool Shared, out bool AutoFlush, out bool KeepFileOpen)
         {
-            Buffered = this.Buffered;
             Shared = this.Shared;
             AutoFlush = this.AutoFlush;
             KeepFileOpen = this.KeepFileOpen;
@@ -41,11 +80,9 @@ namespace Test1
 
     public static class LoggerBuilders
     {
-        private const string AuditRepository = "AuditRepository";
-
-        public static Serilog.Core.Logger BuildSerilogLogFactory(Configuration configuration = null)
+        public static Serilog.Core.Logger BuildSerilogLogFactory(SerilogConfiguration configuration = null)
         {
-            var (Buffered, Shared, _, _) = configuration ?? new Configuration();
+            var (Buffered, Shared) = configuration ?? new SerilogConfiguration();
             return new Serilog.LoggerConfiguration()
                .WriteTo.File(
                 new Serilog.Formatting.Compact.CompactJsonFormatter(),
@@ -61,7 +98,7 @@ namespace Test1
                .CreateLogger();
         }
 
-        public static NLog.LogFactory BuildNLogFactory(Configuration configuration = null)
+        public static NLog.LogFactory BuildNLogFactory(NLogConfiguration configuration = null)
         {
             var jsonLayout = new NLog.Layouts.JsonLayout
             {
@@ -73,7 +110,7 @@ namespace Test1
                 }
             };
 
-            var (_, Shared, AutoFlush, KeepFileOpen) = configuration ?? new Configuration(); ;
+            var (Shared, AutoFlush, KeepFileOpen) = configuration ?? new NLogConfiguration(); ;
             var fileTarget = new NLog.Targets.FileTarget("audit-log")
             {
                 FileName = "${currentdir}/nlog/audit-${date:format=yyyyMMddHHmm}-latest.log",
@@ -100,11 +137,11 @@ namespace Test1
                 ThrowExceptions = true,
                 ThrowConfigExceptions = true,
             };
-
         }
-        public static string BuildLog4Net(Configuration configuration = null)
+
+        public static string BuildLog4Net(Log4NetConfiguration configuration = null)
         {
-            var (Buffered, _, _, _) = configuration ?? new Configuration();
+            var (LockingModel, InstanceName) = configuration ?? new Log4NetConfiguration();
 
             //var layout = new log4net.Layout.PatternLayout("%date{MMM/dd/yyyy HH:mm:ss,fff} [%thread] %-5level %logger %ndc – %message%newline");
             var layout = new log4net.Layout.SerializedLayout();
@@ -114,42 +151,31 @@ namespace Test1
             layout.AddMember("messageobject");
             layout.ActivateOptions();
 
-
             var filter = new log4net.Filter.LevelMatchFilter();
             filter.LevelToMatch = log4net.Core.Level.All;
             filter.ActivateOptions();
 
-            string instanceName = "Audit";
-
             var appender = new log4net.Appender.RollingFileAppender
             {
-                File = $@"log4net\audit-{DateTime.Now.ToString("yyyyMMddHHmm")}-latest.log",
+                File = $@"log4net\{InstanceName.ToLower()}-{DateTime.Now.ToString("yyyyMMddHHmm")}-latest.log",
                 ImmediateFlush = true,
                 AppendToFile = true,
                 RollingStyle = log4net.Appender.RollingFileAppender.RollingMode.Composite,
                 DatePattern = "yyyyMMddhhmm",
                 MaxFileSize = 100_000_000,
-                LockingModel = new log4net.Appender.FileAppender.MinimalLock(),
-                Name = $"{instanceName}Appender"
+                LockingModel = LockingModel,
+                Name = $"{InstanceName}Appender"
             };
             appender.AddFilter(filter);
             appender.Layout = layout;
             appender.ActivateOptions();
 
-
-
-            var repository = log4net.Core.LoggerManager.CreateRepository(AuditRepository);
+            string Repository = $"{InstanceName}Repository";
+            var repository = log4net.Core.LoggerManager.CreateRepository(Repository);
 
             log4net.Config.BasicConfigurator.Configure(repository, appender);
 
-
-            return AuditRepository;
-
+            return Repository;
         }
-
-
-
-
-
     }
 }

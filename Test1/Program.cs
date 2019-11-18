@@ -14,7 +14,7 @@
             }
             using (Log4NetTests nLogTests = new Log4NetTests())
             {
-                nLogTests.TestLog4Net();
+                nLogTests.TestCase1();
             }
         }
     }

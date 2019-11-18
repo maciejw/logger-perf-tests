@@ -8,14 +8,14 @@ namespace Test1
         private readonly NLog.LogFactory factory;
         private readonly NLog.Logger logger;
 
-        public NLogTests(Configuration configuration = null)
+        public NLogTests(NLogConfiguration configuration = null)
         {
             factory = LoggerBuilders.BuildNLogFactory(configuration);
             logger = factory.GetLogger(nameof(IAuditLogger));
         }
 
         [Fact]
-        public void TestNLog()
+        public void TestCase1()
         {
             TestsCases.TestCase1(logger.Info, logger.Info);
         }

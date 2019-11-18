@@ -8,14 +8,14 @@ namespace Test1
         private readonly Serilog.Core.Logger factory;
         private readonly Serilog.ILogger logger;
 
-        public SerilogTests(Configuration configuration = null)
+        public SerilogTests(SerilogConfiguration configuration = null)
         {
             factory = LoggerBuilders.BuildSerilogLogFactory(configuration);
             logger = factory.ForContext<IAuditLogger>();
         }
 
         [Fact]
-        public void TestSerilog()
+        public void TestCase1()
         {
             TestsCases.TestCase1(logger.Information, logger.Information);
         }

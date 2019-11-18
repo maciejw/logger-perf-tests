@@ -15,59 +15,67 @@ namespace Benchmark1
         private NLogTests nLogKeepFileOpenTests;
         private NLogTests nLogTests;
         private Log4NetTests log4NetTests;
+        private Log4NetTests log4NetLockingModelExclusiveTests;
 
         [GlobalSetup]
         public void GlobalSetup()
         {
             serilogBaseTests = new SerilogTests();
-            serilogBufferedTests = new SerilogTests(new Configuration { Buffered = true });
-            nLogKeepFileOpenAutoFlushTests = new NLogTests(new Configuration { KeepFileOpen = true, AutoFlush = true });
-            nLogAutoFlushTests = new NLogTests(new Configuration { KeepFileOpen = false, AutoFlush = true });
-            nLogKeepFileOpenTests = new NLogTests(new Configuration { KeepFileOpen = true, AutoFlush = false });
-            nLogTests = new NLogTests(new Configuration { KeepFileOpen = false, AutoFlush = false });
-            log4NetTests = new Log4NetTests();
+            serilogBufferedTests = new SerilogTests(new SerilogConfiguration { Buffered = true });
+            nLogKeepFileOpenAutoFlushTests = new NLogTests(new NLogConfiguration { KeepFileOpen = true, AutoFlush = true });
+            nLogAutoFlushTests = new NLogTests(new NLogConfiguration { KeepFileOpen = false, AutoFlush = true });
+            nLogKeepFileOpenTests = new NLogTests(new NLogConfiguration { KeepFileOpen = true, AutoFlush = false });
+            nLogTests = new NLogTests(new NLogConfiguration { KeepFileOpen = false, AutoFlush = false });
+            log4NetTests = new Log4NetTests(new Log4NetConfiguration { InstanceName = "Audit" });
+            log4NetLockingModelExclusiveTests = new Log4NetTests(new Log4NetConfiguration { InstanceName = "AuditExclusive", LockingModel = new log4net.Appender.FileAppender.ExclusiveLock() });
         }
 
         [Benchmark]
         public void Log4Net()
         {
-            log4NetTests.TestLog4Net();
+            log4NetTests.TestCase1();
+        }
+
+        [Benchmark]
+        public void Log4NetLockingModelExclusive()
+        {
+            log4NetLockingModelExclusiveTests.TestCase1();
         }
 
         [Benchmark]
         public void NLogKeepFileOpenAutoFlush()
         {
-            nLogKeepFileOpenAutoFlushTests.TestNLog();
+            nLogKeepFileOpenAutoFlushTests.TestCase1();
         }
 
         [Benchmark]
         public void NLog()
         {
-            nLogTests.TestNLog();
+            nLogTests.TestCase1();
         }
 
         [Benchmark]
         public void NLogAutoFlush()
         {
-            nLogAutoFlushTests.TestNLog();
+            nLogAutoFlushTests.TestCase1();
         }
 
         [Benchmark]
         public void NLogKeepFileOpen()
         {
-            nLogKeepFileOpenTests.TestNLog();
+            nLogKeepFileOpenTests.TestCase1();
         }
 
         [Benchmark(Baseline = true)]
         public void Serilog()
         {
-            serilogBaseTests.TestSerilog();
+            serilogBaseTests.TestCase1();
         }
 
         [Benchmark()]
         public void SerilogBuffered()
         {
-            serilogBufferedTests.TestSerilog();
+            serilogBufferedTests.TestCase1();
         }
 
         [GlobalCleanup]
