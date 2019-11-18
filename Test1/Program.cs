@@ -1,20 +1,20 @@
-﻿namespace Test1
+﻿namespace LoggingTests
 {
     internal static class Program
     {
         internal static void Main(string[] args)
         {
-            using (SerilogTests serilogTests = new SerilogTests())
+            using (SerilogTests tests = new SerilogTests())
             {
-                //serilogTests.TestSerilog();
+                tests.TestCase1();
             }
-            using (NLogTests nLogTests = new NLogTests())
+            using (NLogTests tests = new NLogTests())
             {
-                //nLogTests.TestNLog();
+                tests.TestCase1();
             }
-            using (Log4NetTests nLogTests = new Log4NetTests())
+            using (Log4NetTests tests = new Log4NetTests())
             {
-                nLogTests.TestCase1();
+                tests.TestCase1();
             }
         }
     }

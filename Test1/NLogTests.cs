@@ -1,7 +1,7 @@
 ﻿using System;
 using Xunit;
 
-namespace Test1
+namespace LoggingTests
 {
     public class NLogTests : IDisposable
     {

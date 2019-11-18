@@ -1,12 +1,12 @@
 ﻿using BenchmarkDotNet.Running;
 
-namespace Benchmark1
+namespace LoggingBenchmarks
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
-            var summary = BenchmarkRunner.Run(typeof(Program).Assembly);
+            BenchmarkDotNet.Reports.Summary[] summary = BenchmarkRunner.Run(typeof(Program).Assembly);
         }
     }
 }

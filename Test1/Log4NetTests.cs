@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Diagnostics;
 using Xunit;
 
-namespace Test1
+namespace LoggingTests
 {
     public class Log4NetTests : IDisposable
     {
