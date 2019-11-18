@@ -9,9 +9,9 @@ namespace Test1
         private readonly Serilog.Core.Logger factory;
         private readonly Serilog.ILogger logger;
 
-        public SerilogTests()
+        public SerilogTests(Configuration configuration = null)
         {
-            factory = LoggerBuilders.BuildSerilogLogFactory();
+            factory = LoggerBuilders.BuildSerilogLogFactory(configuration);
             logger = factory.ForContext<IAuditLogger>();
         }
 
@@ -35,6 +35,7 @@ namespace Test1
                 disposedValue = true;
             }
         }
+
         public void Dispose()
         {
             Dispose(true);

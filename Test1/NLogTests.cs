@@ -8,9 +8,9 @@ namespace Test1
         private readonly NLog.LogFactory factory;
         private readonly NLog.Logger logger;
 
-        public NLogTests()
+        public NLogTests(Configuration configuration = null)
         {
-            factory = LoggerBuilders.BuildNLogFactory();
+            factory = LoggerBuilders.BuildNLogFactory(configuration);
             logger = factory.GetLogger(nameof(IAuditLogger));
         }
 
@@ -34,6 +34,7 @@ namespace Test1
                 disposedValue = true;
             }
         }
+
         public void Dispose()
         {
             Dispose(true);

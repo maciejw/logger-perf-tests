@@ -3,14 +3,39 @@ using Serilog;
 
 namespace Test1
 {
-    internal static class LoggerBuilders {
-        private const bool Buffered = false;
-        private const bool Shared = false;
-        private const bool AutoFlash = !Buffered;
-        private const bool KeepFileOpen = true;
+    public class Configuration
+    {
+        public bool Buffered { get; set; }
+        public bool Shared { get; set; }
+        public bool AutoFlush { get; set; }
+        public bool KeepFileOpen { get; set; }
 
-        public static Serilog.Core.Logger BuildSerilogLogFactory()
+        public Configuration()
         {
+            Buffered = false;
+            Shared = false;
+            AutoFlush = !Buffered;
+            KeepFileOpen = false;
+            
+        }
+
+        public void Deconstruct(out bool Buffered, out bool Shared, out bool AutoFlush, out bool KeepFileOpen)
+        {
+            Buffered = this.Buffered;
+            Shared = this.Shared;
+            AutoFlush = this.AutoFlush;
+            KeepFileOpen = this.KeepFileOpen;
+        }
+    }
+
+    public static class LoggerBuilders
+    {
+
+        public static Serilog.Core.Logger BuildSerilogLogFactory(Configuration configuration = null )
+        {
+            configuration = configuration ?? new Configuration();
+
+            var (Buffered, Shared, _, _) = configuration;
             return new Serilog.LoggerConfiguration()
                .WriteTo.File(
                 new Serilog.Formatting.Compact.CompactJsonFormatter(),
@@ -26,7 +51,7 @@ namespace Test1
                .CreateLogger();
         }
 
-        public static NLog.LogFactory BuildNLogFactory()
+        public static NLog.LogFactory BuildNLogFactory(Configuration configuration = null)
         {
             var jsonLayout = new NLog.Layouts.JsonLayout
             {
@@ -38,11 +63,14 @@ namespace Test1
                 }
             };
 
+            configuration = configuration ?? new Configuration();
+
+            var (_, Shared, AutoFlush, KeepFileOpen) = configuration;
             var fileTarget = new NLog.Targets.FileTarget("audit-log")
             {
                 FileName = "${currentdir}/nlog/audit-${date:format=yyyyMMddHHmm}-latest.log",
 
-                AutoFlush = AutoFlash,
+                AutoFlush = AutoFlush,
                 ConcurrentWrites = Shared,
                 KeepFileOpen = KeepFileOpen,
 
@@ -53,13 +81,13 @@ namespace Test1
                 Layout = jsonLayout
             };
 
-            var configuration = new NLog.Config.LoggingConfiguration();
+            var loggingConfiguration = new NLog.Config.LoggingConfiguration();
 
-            configuration.AddTarget(fileTarget);
+            loggingConfiguration.AddTarget(fileTarget);
 
-            configuration.AddRuleForOneLevel(NLog.LogLevel.Info, fileTarget);
+            loggingConfiguration.AddRuleForOneLevel(NLog.LogLevel.Info, fileTarget);
 
-            return new NLog.LogFactory(configuration)
+            return new NLog.LogFactory(loggingConfiguration)
             {
                 ThrowExceptions = true,
                 ThrowConfigExceptions = true,

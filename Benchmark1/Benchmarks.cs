@@ -8,33 +8,65 @@ namespace Benchmark1
     [CoreJob, RPlotExporter]
     public class Benchmarks
     {
-        private SerilogTests serilogTests;
+        private SerilogTests serilogBaseTests;
+        private SerilogTests serilogBufferedTests;
+        private NLogTests nLogKeepFileOpenAutoFlushTests;
+        private NLogTests nLogAutoFlushTests;
+        private NLogTests nLogKeepFileOpenTests;
         private NLogTests nLogTests;
 
         [GlobalSetup]
         public void GlobalSetup()
         {
-            serilogTests = new SerilogTests();
-            nLogTests = new NLogTests();
+            serilogBaseTests = new SerilogTests();
+            serilogBufferedTests = new SerilogTests(new Configuration { Buffered = true });
+            nLogKeepFileOpenAutoFlushTests = new NLogTests(new Configuration { KeepFileOpen = true, AutoFlush = true });
+            nLogAutoFlushTests = new NLogTests(new Configuration { KeepFileOpen = false, AutoFlush = true });
+            nLogKeepFileOpenTests = new NLogTests(new Configuration { KeepFileOpen = true, AutoFlush = false });
+            nLogTests = new NLogTests(new Configuration { KeepFileOpen = false, AutoFlush = false });
         }
 
         [Benchmark]
-        public void LogNLog()
+        public void NLogKeepFileOpenAutoFlush()
+        {
+            nLogKeepFileOpenAutoFlushTests.TestNLog();
+        }
+
+        [Benchmark]
+        public void NLog()
         {
             nLogTests.TestNLog();
         }
 
-        [Benchmark(Baseline = true)]
-        public void LogSerilog()
+        [Benchmark]
+        public void NLogAutoFlush()
         {
-            serilogTests.TestSerilog();
+            nLogAutoFlushTests.TestNLog();
+        }
+
+        [Benchmark]
+        public void NLogKeepFileOpen()
+        {
+            nLogKeepFileOpenTests.TestNLog();
+        }
+
+        [Benchmark(Baseline = true)]
+        public void Serilog()
+        {
+            serilogBaseTests.TestSerilog();
+        }
+
+        [Benchmark()]
+        public void SerilogBuffered()
+        {
+            serilogBufferedTests.TestSerilog();
         }
 
         [GlobalCleanup]
         public void GlobalCleanup()
         {
-            serilogTests.Dispose();
-            nLogTests.Dispose();
+            serilogBaseTests.Dispose();
+            nLogKeepFileOpenAutoFlushTests.Dispose();
         }
     }
 }
