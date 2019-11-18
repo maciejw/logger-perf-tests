@@ -6,11 +6,15 @@
         {
             using (SerilogTests serilogTests = new SerilogTests())
             {
-                serilogTests.TestSerilog();
+                //serilogTests.TestSerilog();
             }
             using (NLogTests nLogTests = new NLogTests())
             {
-                nLogTests.TestNLog();
+                //nLogTests.TestNLog();
+            }
+            using (Log4NetTests nLogTests = new Log4NetTests())
+            {
+                nLogTests.TestLog4Net();
             }
         }
     }

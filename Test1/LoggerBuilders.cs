@@ -5,9 +5,21 @@ namespace Test1
 {
     public class Configuration
     {
+        /// <summary>
+        /// Serilog
+        /// </summary>
         public bool Buffered { get; set; }
+        /// <summary>
+        /// Serilog, NLog
+        /// </summary>
         public bool Shared { get; set; }
+        /// <summary>
+        /// NLog
+        /// </summary>
         public bool AutoFlush { get; set; }
+        /// <summary>
+        /// NLog
+        /// </summary>
         public bool KeepFileOpen { get; set; }
 
         public Configuration()
@@ -16,7 +28,6 @@ namespace Test1
             Shared = false;
             AutoFlush = !Buffered;
             KeepFileOpen = false;
-            
         }
 
         public void Deconstruct(out bool Buffered, out bool Shared, out bool AutoFlush, out bool KeepFileOpen)
@@ -30,16 +41,15 @@ namespace Test1
 
     public static class LoggerBuilders
     {
+        private const string AuditRepository = "AuditRepository";
 
-        public static Serilog.Core.Logger BuildSerilogLogFactory(Configuration configuration = null )
+        public static Serilog.Core.Logger BuildSerilogLogFactory(Configuration configuration = null)
         {
-            configuration = configuration ?? new Configuration();
-
-            var (Buffered, Shared, _, _) = configuration;
+            var (Buffered, Shared, _, _) = configuration ?? new Configuration();
             return new Serilog.LoggerConfiguration()
                .WriteTo.File(
                 new Serilog.Formatting.Compact.CompactJsonFormatter(),
-                $"./serilog/{DateTime.Now.ToString("yyyyMMddHHmm")}-latest.log",
+                $"./serilog/audit-{DateTime.Now.ToString("yyyyMMddHHmm")}-latest.log",
                 Serilog.Events.LogEventLevel.Verbose,
                 100_000_000,
 
@@ -63,9 +73,7 @@ namespace Test1
                 }
             };
 
-            configuration = configuration ?? new Configuration();
-
-            var (_, Shared, AutoFlush, KeepFileOpen) = configuration;
+            var (_, Shared, AutoFlush, KeepFileOpen) = configuration ?? new Configuration(); ;
             var fileTarget = new NLog.Targets.FileTarget("audit-log")
             {
                 FileName = "${currentdir}/nlog/audit-${date:format=yyyyMMddHHmm}-latest.log",
@@ -92,6 +100,56 @@ namespace Test1
                 ThrowExceptions = true,
                 ThrowConfigExceptions = true,
             };
+
         }
+        public static string BuildLog4Net(Configuration configuration = null)
+        {
+            var (Buffered, _, _, _) = configuration ?? new Configuration();
+
+            //var layout = new log4net.Layout.PatternLayout("%date{MMM/dd/yyyy HH:mm:ss,fff} [%thread] %-5level %logger %ndc – %message%newline");
+            var layout = new log4net.Layout.SerializedLayout();
+            layout.AddDecorator(new log4net.Layout.Decorators.StandardTypesDecorator());
+            layout.AddDefault("");
+            layout.AddRemove("message");
+            layout.AddMember("messageobject");
+            layout.ActivateOptions();
+
+
+            var filter = new log4net.Filter.LevelMatchFilter();
+            filter.LevelToMatch = log4net.Core.Level.All;
+            filter.ActivateOptions();
+
+            string instanceName = "Audit";
+
+            var appender = new log4net.Appender.RollingFileAppender
+            {
+                File = $@"log4net\audit-{DateTime.Now.ToString("yyyyMMddHHmm")}-latest.log",
+                ImmediateFlush = true,
+                AppendToFile = true,
+                RollingStyle = log4net.Appender.RollingFileAppender.RollingMode.Composite,
+                DatePattern = "yyyyMMddhhmm",
+                MaxFileSize = 100_000_000,
+                LockingModel = new log4net.Appender.FileAppender.MinimalLock(),
+                Name = $"{instanceName}Appender"
+            };
+            appender.AddFilter(filter);
+            appender.Layout = layout;
+            appender.ActivateOptions();
+
+
+
+            var repository = log4net.Core.LoggerManager.CreateRepository(AuditRepository);
+
+            log4net.Config.BasicConfigurator.Configure(repository, appender);
+
+
+            return AuditRepository;
+
+        }
+
+
+
+
+
     }
 }

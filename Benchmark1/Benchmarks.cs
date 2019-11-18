@@ -14,6 +14,7 @@ namespace Benchmark1
         private NLogTests nLogAutoFlushTests;
         private NLogTests nLogKeepFileOpenTests;
         private NLogTests nLogTests;
+        private Log4NetTests log4NetTests;
 
         [GlobalSetup]
         public void GlobalSetup()
@@ -24,6 +25,13 @@ namespace Benchmark1
             nLogAutoFlushTests = new NLogTests(new Configuration { KeepFileOpen = false, AutoFlush = true });
             nLogKeepFileOpenTests = new NLogTests(new Configuration { KeepFileOpen = true, AutoFlush = false });
             nLogTests = new NLogTests(new Configuration { KeepFileOpen = false, AutoFlush = false });
+            log4NetTests = new Log4NetTests();
+        }
+
+        [Benchmark]
+        public void Log4Net()
+        {
+            log4NetTests.TestLog4Net();
         }
 
         [Benchmark]

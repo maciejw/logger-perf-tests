@@ -19,7 +19,7 @@ namespace Test1
                 logEntry("My data '{i}' {@data}", i, data);
             }
 
-            logFinish("Finished '{count}' iterations in '{elapsedMilliseconds}ms' ", sw.ElapsedMilliseconds, count);
+            logFinish("Finished '{count}' iterations in '{elapsedMilliseconds} ms'", sw.ElapsedMilliseconds, count);
         }
     }
 }

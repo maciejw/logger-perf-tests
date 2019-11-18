@@ -1,4 +1,4 @@
-# Comparision of serilog 2.9.0 and nlog 4.6.8
+# Comparision of serilog 2.9.0 vs nlog 4.6.8 vs log4net 2.0.8
 
 
 ``` ini
@@ -14,9 +14,10 @@ Job=Core  Runtime=Core
 ```
 |                    Method |        Mean |      Error |     StdDev | Ratio | RatioSD |
 |-------------------------- |------------:|-----------:|-----------:|------:|--------:|
-| NLogKeepFileOpenAutoFlush |    27.42 us |  0.6601 us |  0.5852 us |  1.15 |    0.02 |
-|                      NLog | 1,039.33 us | 19.9619 us | 23.7632 us | 43.46 |    1.31 |
-|             NLogAutoFlush | 1,040.61 us | 20.4470 us | 35.2701 us | 44.10 |    1.45 |
-|          NLogKeepFileOpen |    16.31 us |  0.1163 us |  0.1088 us |  0.68 |    0.01 |
-|                   Serilog |    23.82 us |  0.2571 us |  0.2405 us |  1.00 |    0.00 |
-|           SerilogBuffered |    14.18 us |  0.2706 us |  0.2399 us |  0.60 |    0.01 |
+|                   Log4Net | 1,102.52 us | 24.2902 us | 46.2147 us | 46.67 |    2.79 |
+| NLogKeepFileOpenAutoFlush |    28.29 us |  0.5343 us |  0.4736 us |  1.20 |    0.02 |
+|                      NLog | 1,057.99 us | 20.9862 us | 24.9826 us | 44.82 |    1.17 |
+|             NLogAutoFlush | 1,042.90 us | 26.9321 us | 25.1923 us | 44.24 |    1.08 |
+|          NLogKeepFileOpen |    15.77 us |  0.1368 us |  0.1213 us |  0.67 |    0.01 |
+|                   Serilog |    23.57 us |  0.1871 us |  0.1751 us |  1.00 |    0.00 |
+|           SerilogBuffered |    14.29 us |  0.3100 us |  0.2899 us |  0.61 |    0.01 |
