@@ -13,10 +13,10 @@ namespace LoggingBenchmarks
         private NLogTests nLogTests;
         private Log4NetTests log4NetTests;
 
-        [Params(true, false)]
+        [ParamsAllValues]
         public bool KeepFileOpen { get; set; }
 
-        [Params(true, false)]
+        [ParamsAllValues]
         public bool Buffered { get; set; }
 
         #region Setup

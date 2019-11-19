@@ -5,6 +5,7 @@
 
     <IsPackable>false</IsPackable>
     <GenerateProgramFile>false</GenerateProgramFile>
+    <RootNamespace>LoggingTests</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

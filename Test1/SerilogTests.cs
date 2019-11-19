@@ -1,9 +1,8 @@
 ﻿using System;
-using Xunit;
 
 namespace LoggingTests
 {
-    public class SerilogTests : IDisposable
+    public class SerilogTests : LoggerTests, IDisposable
     {
         private readonly Serilog.Core.Logger factory;
         private readonly Serilog.ILogger logger;
@@ -14,11 +13,8 @@ namespace LoggingTests
             logger = factory.ForContext<IAuditLogger>();
         }
 
-        [Fact]
-        public void TestCase1()
-        {
-            TestsCases.TestCase1(logger.Information, logger.Information);
-        }
+        protected override LogEntry LogEntry => logger.Information;
+        protected override LogFinish LogFinish => logger.Information;
 
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls

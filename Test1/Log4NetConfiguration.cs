@@ -4,7 +4,6 @@
     {
         public bool Buffered { get; set; }
         public bool KeepFileOpen { get; set; }
-
         public string InstanceName { get; set; }
 
         public Log4NetConfiguration()
@@ -19,7 +18,6 @@
             KeepFileOpen = this.KeepFileOpen;
             Buffered = this.Buffered;
             InstanceName = this.InstanceName;
-
         }
     }
 }

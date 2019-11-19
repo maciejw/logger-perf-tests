@@ -10,6 +10,7 @@
     <Optimize>true</Optimize>
     <Configuration>Release</Configuration>
     <OutputType>Exe</OutputType>
+    <RootNamespace>LoggingTests</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.12.0" />

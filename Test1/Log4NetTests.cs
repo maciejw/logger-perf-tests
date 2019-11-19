@@ -1,25 +1,22 @@
 ﻿using System;
-using Xunit;
 
 namespace LoggingTests
 {
-    public class Log4NetTests : IDisposable
+    public class Log4NetTests : LoggerTests, IDisposable
     {
         private readonly string Repository;
         private readonly log4net.ILog logger;
 
         public Log4NetTests(Log4NetConfiguration configuration = null)
         {
-            Repository = LoggerBuilders.BuildLog4Net(configuration);
+            Repository = LoggerBuilders.BuildLog4Net(configuration ?? new Log4NetConfiguration { InstanceName = $"{Guid.NewGuid()}", KeepFileOpen = true });
 
             logger = log4net.LogManager.GetLogger(Repository, typeof(IAuditLogger));
         }
 
-        [Fact]
-        public void TestCase1()
-        {
-            TestsCases.TestCase1((message, i, data) => logger.Info(new { message, i, data }), (message, elapsedMilliseconds, count) => logger.Info(new { message, elapsedMilliseconds, count }));
-        }
+        protected override LogFinish LogFinish => (message, elapsedMilliseconds, count) => logger.Info(new { message, elapsedMilliseconds, count });
+
+        protected override LogEntry LogEntry => (message, i, data) => logger.Info(new { message, i, data });
 
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
