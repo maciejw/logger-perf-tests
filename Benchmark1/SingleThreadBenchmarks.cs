@@ -1,10 +1,10 @@
 ﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
 using LoggingTests;
+using static LoggingBenchmarks.FileMode;
 
 namespace LoggingBenchmarks
 {
-    [RPlotExporter]
     [SimpleJob(RuntimeMoniker.NetCoreApp21)]
     [SimpleJob(RuntimeMoniker.NetCoreApp30)]
     public class SingleThreadBenchmarks
@@ -13,29 +13,26 @@ namespace LoggingBenchmarks
         private NLogTests nLogTests;
         private Log4NetTests log4NetTests;
 
-        [ParamsAllValues]
-        public bool KeepFileOpen { get; set; }
-
-        [ParamsAllValues]
-        public bool Buffered { get; set; }
+        [Params(None, KeepFileOpen, KeepFileOpenBuffered, KeepFileOpenShared)]
+        public FileMode FileMode { get; set; }
 
         #region Setup
         [GlobalSetup(Target = nameof(Log4Net))]
         public void Log4NetGlobalSetup()
         {
-            log4NetTests = new Log4NetTests(new Log4NetConfiguration { Buffered = Buffered, KeepFileOpen = KeepFileOpen });
+            log4NetTests = new Log4NetTests(new Log4NetConfiguration { Buffered = FileMode.HasFlag(Buffered), KeepFileOpen = FileMode.HasFlag(KeepFileOpen), Shared = FileMode.HasFlag(Shared) });
         }
 
         [GlobalSetup(Target = nameof(NLog))]
         public void NLogGlobalSetup()
         {
-            nLogTests = new NLogTests(new NLogConfiguration { Buffered = Buffered, KeepFileOpen = KeepFileOpen });
+            nLogTests = new NLogTests(new NLogConfiguration { Buffered = FileMode.HasFlag(Buffered), KeepFileOpen = FileMode.HasFlag(KeepFileOpen), Shared = FileMode.HasFlag(Shared) });
         }
 
         [GlobalSetup(Target = nameof(Serilog))]
         public void SerilogGlobalSetup()
         {
-            serilogBaseTests = new SerilogTests(new SerilogConfiguration { Buffered = Buffered });
+            serilogBaseTests = new SerilogTests(new SerilogConfiguration { Buffered = FileMode.HasFlag(Buffered), Shared = FileMode.HasFlag(Shared) });
         }
         #endregion
 

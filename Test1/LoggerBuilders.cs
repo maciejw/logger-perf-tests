@@ -17,8 +17,8 @@ namespace LoggingTests
                 100_000_000,
 
                 buffered: Buffered,
-
                 shared: Shared,
+
                 rollingInterval: Serilog.RollingInterval.Day,
                 rollOnFileSizeLimit: true)
                .CreateLogger();
@@ -26,15 +26,6 @@ namespace LoggingTests
 
         public static NLog.LogFactory BuildNLogFactory(NLogConfiguration configuration = null)
         {
-            NLog.Layouts.JsonLayout jsonLayout = new NLog.Layouts.JsonLayout
-            {
-                IncludeAllProperties = true,
-                Attributes = {
-                    new NLog.Layouts.JsonAttribute("@t", "${longdate}"),
-                    new NLog.Layouts.JsonAttribute("@l", "${level:upperCase=true}"),
-                    new NLog.Layouts.JsonAttribute("@mt", "${message:raw=true}"),
-                }
-            };
 
             (bool Buffered, bool KeepFileOpen, bool Shared) = configuration ?? new NLogConfiguration();
 
@@ -42,17 +33,25 @@ namespace LoggingTests
 
             NLog.Targets.FileTarget fileTarget = new NLog.Targets.FileTarget("audit-log")
             {
-                FileName = "${currentdir}/nlog/audit-${date:format=yyyyMMddHHmm}-latest.log",
+                FileName = $"./nlog/audit-{DateTime.Now.ToString("yyyyMMddHHmm")}-latest.log",
+                ArchiveFileName = $"./nlog/audit-{DateTime.Now.ToString("yyyyMMddHHmm")}-{{###}}.log",
 
                 AutoFlush = AutoFlush,
                 KeepFileOpen = KeepFileOpen,
-
                 ConcurrentWrites = Shared,
+
                 ArchiveEvery = NLog.Targets.FileArchivePeriod.Day,
                 ArchiveNumbering = NLog.Targets.ArchiveNumberingMode.Rolling,
                 ArchiveAboveSize = 100_000_000,
-                ArchiveFileName = "${currentdir}/nlog/audit-${date:format=yyyyMMddHHmm}-{###}.log",
-                Layout = jsonLayout
+                Layout = new NLog.Layouts.JsonLayout
+                {
+                    IncludeAllProperties = true,
+                    Attributes = {
+                    new NLog.Layouts.JsonAttribute("@t", "${longdate}") { Encode = false },
+                    new NLog.Layouts.JsonAttribute("@l", "${level:upperCase=true}") { Encode = false },
+                    new NLog.Layouts.JsonAttribute("@mt", "${message:raw=true}"),
+                }
+                }
             };
 
             NLog.Config.LoggingConfiguration loggingConfiguration = new NLog.Config.LoggingConfiguration();
@@ -83,12 +82,19 @@ namespace LoggingTests
             };
             filter.ActivateOptions();
 
-            (string InstanceName, bool Buffered, bool KeepFileOpen) = configuration ?? new Log4NetConfiguration();
+            (string InstanceName, bool Buffered, bool KeepFileOpen, bool Shared) = configuration ?? new Log4NetConfiguration();
 
             log4net.Appender.FileAppender.LockingModelBase LockingModel = new log4net.Appender.FileAppender.MinimalLock();
             if (KeepFileOpen)
             {
-                LockingModel = new log4net.Appender.FileAppender.ExclusiveLock();
+                if (Shared)
+                {
+                    LockingModel = new log4net.Appender.FileAppender.InterProcessLock();
+                }
+                else
+                {
+                    LockingModel = new log4net.Appender.FileAppender.ExclusiveLock();
+                }
             }
 
             bool ImmediateFlush = !Buffered;
