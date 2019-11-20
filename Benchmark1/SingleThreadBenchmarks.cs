@@ -7,6 +7,8 @@ namespace LoggingBenchmarks
 {
     [SimpleJob(RuntimeMoniker.NetCoreApp21)]
     [SimpleJob(RuntimeMoniker.NetCoreApp30)]
+    [SimpleJob(RuntimeMoniker.Net461)]
+    [SimpleJob(RuntimeMoniker.Net48)]
     public class SingleThreadBenchmarks
     {
         private SerilogTests serilogBaseTests;
