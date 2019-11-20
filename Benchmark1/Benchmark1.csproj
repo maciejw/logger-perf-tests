@@ -13,10 +13,14 @@
     <RootNamespace>LoggingTests</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="BenchmarkDotNet" Version="0.12.0" />
     <PackageReference Include="BenchmarkDotNet.Diagnostics.Windows" Version="0.12.0" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Test1\Test1.csproj" />
+    <PackageReference Include="BenchmarkDotNet" Version="0.12.0" />
+    <PackageReference Include="log4net" Version="2.0.8" />
+    <PackageReference Include="log4net.Ext.Json" Version="2.0.8.3" />
+    <PackageReference Include="nlog" Version="4.5.11" />
+    <PackageReference Include="serilog" Version="2.9.0" />
+    <PackageReference Include="serilog.formatting.compact" Version="1.1.0" />
+    <PackageReference Include="serilog.sinks.file" Version="4.1.0" />
+    <PackageReference Include="xunit" Version="2.4.1" />
   </ItemGroup>
 </Project>

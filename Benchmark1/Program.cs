@@ -2,11 +2,11 @@
 
 namespace LoggingBenchmarks
 {
-    internal class Program
+    internal static class Program
     {
         private static void Main(string[] args)
         {
-            BenchmarkDotNet.Reports.Summary[] summary = BenchmarkRunner.Run(typeof(Program).Assembly);
+            var summary = BenchmarkRunner.Run<SingleThreadBenchmarks>(new BenchmarkConfig());
         }
     }
 }

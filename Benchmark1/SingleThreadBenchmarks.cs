@@ -1,14 +1,14 @@
 ﻿using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Configs;
+using BenchmarkDotNet.Environments;
 using BenchmarkDotNet.Jobs;
 using LoggingTests;
+using System.Collections.Generic;
+using System.Linq;
 using static LoggingBenchmarks.FileMode;
 
 namespace LoggingBenchmarks
 {
-    [SimpleJob(RuntimeMoniker.NetCoreApp21)]
-    [SimpleJob(RuntimeMoniker.NetCoreApp30)]
-    [SimpleJob(RuntimeMoniker.Net461)]
-    [SimpleJob(RuntimeMoniker.Net48)]
     public class SingleThreadBenchmarks
     {
         private SerilogTests serilogBaseTests;
@@ -16,7 +16,7 @@ namespace LoggingBenchmarks
         private Log4NetTests log4NetTests;
 
         [Params(None, KeepFileOpen, KeepFileOpenBuffered, KeepFileOpenShared)]
-        public FileMode FileMode { get; set; }
+        public virtual FileMode FileMode { get; set; }
 
         #region Setup
         [GlobalSetup(Target = nameof(Log4Net))]
